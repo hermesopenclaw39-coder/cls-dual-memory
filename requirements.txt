@@ -1,0 +1,9 @@
+# AutoDL 已预装 torch 2.5.1+cu124，不在此重装（PyPI 的 torch 是 CPU 版）
+# 若自行安装，请使用与 CUDA 匹配的 torch 轮子。
+torch==2.5.1
+# 必须 <5.0：transformers 5.x 依赖 torch.accelerator（torch 2.6+）
+transformers==4.57.6
+peft==0.21.2
+bitsandbytes==0.50.2
+accelerate>=0.34.0
+huggingface_hub>=0.24.0

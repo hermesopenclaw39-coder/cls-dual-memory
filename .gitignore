@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Secrets — never commit
+ssh_config.json
+*.pem
+*.key
+credentials*
+secrets*
+
+# Logs and local artifacts
+*.log
+outputs/
+checkpoints/
+models/
+hf/
+autodl-tmp/
+
+# Model weights
+*.safetensors
+*.bin
+*.pth
+*.pt
+*.gguf
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "CLS Dual-Memory: LoRA as Memory Slots"
+abstract: "A small-scale engineering probe of Complementary Learning Systems on LoRA adapters with Qwen2.5-7B-Instruct: episodic adapters, replay consolidation, and embedding-cosine gating."
+authors:
+  - name: "hermesopenclaw39-coder"
+    website: "https://github.com/hermesopenclaw39-coder"
+version: 0.1.0
+date-released: "2026-10-22"
+license: MIT
+repository-code: "https://github.com/hermesopenclaw39-coder/cls-dual-memory"
+keywords:
+  - complementary learning systems
+  - LoRA
+  - continual learning
+  - catastrophic forgetting
+  - memory consolidation
+  - QLoRA

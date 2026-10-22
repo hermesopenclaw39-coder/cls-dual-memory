@@ -1,0 +1,17 @@
+phase,unit,loss,recall
+single_adapter,epoch_1,4.02,
+single_adapter,epoch_25,5.07,
+single_adapter,epoch_50,5.00,
+single_adapter,epoch_75,4.72,
+single_adapter,epoch_100,4.56,
+single_adapter,epoch_125,4.23,
+single_adapter,epoch_150,4.87,0/50
+grouped,group_0,0.0000,6/6
+grouped,group_1,0.1594,6/6
+grouped,group_2,0.1409,6/6
+grouped,group_3,0.1708,6/6
+grouped,group_4,0.1770,6/6
+grouped,group_5,0.1881,6/6
+grouped,group_6,0.2085,6/6
+grouped,group_7,0.2426,6/6
+grouped,group_8,0.0756,2/2

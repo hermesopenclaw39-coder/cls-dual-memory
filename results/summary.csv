@@ -1,0 +1,6 @@
+stage,recall,total,route_accuracy,notes
+frozen_base,0,50,,base model does not know synthetic facts
+hippocampus_gated,44,50,47,50 per-episode rank-8 LoRAs with cosine gate; second run 47/50 recall
+shared_lora_sequential,1,50,,catastrophic forgetting
+single_adapter_consolidation,0,50,,rank-32; loss oscillated between 4 and 5
+grouped_consolidation_oracle,50,50,,9 groups x rank-8; oracle group selection at evaluation
