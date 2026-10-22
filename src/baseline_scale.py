@@ -19,13 +19,14 @@ os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, set_seed
 
-from facts_scaled import make_facts
+from facts_scaled import make_facts, make_facts_diverse
 
 MODEL_ID = os.environ.get("MODEL_ID", "Qwen/Qwen2.5-7B-Instruct")
 SIZES = [int(x) for x in os.environ.get("SIZES", "50,100,200,400,800,1600").split(",")]
 PROBES = int(os.environ.get("PROBES", "100"))
 MAX_NEW = int(os.environ.get("MAX_NEW", "24"))
 USE_4BIT = os.environ.get("USE_4BIT", "1") != "0"
+FACTS_SOURCE = os.environ.get("FACTS_SOURCE", "scaled")   # scaled | diverse
 
 
 def build_system_prompt(facts):
@@ -70,9 +71,12 @@ def ask(tokenizer, model, system_prompt, question):
 def main():
     set_seed(42)
     tokenizer, model = load_model()
-    pool = make_facts(max(SIZES))
+    if FACTS_SOURCE == "diverse":
+        pool = make_facts_diverse(max(SIZES))
+    else:
+        pool = make_facts(max(SIZES))
     rng = random.Random(0)
-    print("model=%s probes=%s max_new=%s" % (MODEL_ID, PROBES, MAX_NEW))
+    print("model=%s facts=%s probes=%s max_new=%s" % (MODEL_ID, FACTS_SOURCE, PROBES, MAX_NEW))
     print("%6s %8s %10s %8s" % ("N", "tokens", "recall", "sec"))
     for n in SIZES:
         facts = pool[:n]

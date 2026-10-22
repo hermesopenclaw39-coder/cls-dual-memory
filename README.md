@@ -36,30 +36,32 @@ All 50 facts pasted into the system prompt (~700 tokens), no training, greedy de
 | 24 | **50/50** | 24 s | every fact answered correctly on the first try |
 
 This is the comparison the original note was missing, and it is unkind to the LoRA stack: at 50 facts, simply putting the facts in the prompt is as accurate as the best consolidated configuration — no adapters, no training, no oracle routing. What weight-based memory could still buy is a constant context cost (0 prompt tokens instead of ~700) and graceful behaviour once the fact set outgrows the window, but at this scale that is an argument, not a measurement. The 12-token misses are worth reading: the model reproduces the fact's own wording and gets cut off mid-answer, which is exactly the kind of artefact a shared token budget produces when every stage is scored with the same decoder limit.
-### Scaling the baseline (same day)
+### Scaling both sides (same day)
 
-Same prompt format, 100 randomly chosen probes per size, 24-token budget, facts generated deterministically by `src/facts_scaled.py` (one uniform template, so the model has to locate the row by name — no semantic hints to lean on).
+The fair question is not "does in-context learning degrade" but "which side degrades first" — the prompt's capacity, or the cosine gate's ability to pick the right adapter out of N. Both were measured on the same facts: a deterministic synthetic set with six sentence templates and six answer types (`src/facts_scaled.py`, `make_facts_diverse`), so facts differ semantically rather than only by name.
 
-| Facts | Prompt tokens | Recall | Time |
-|---|---|---|---|
-| 50 | 981 | 50/50 | 32 s |
-| 100 | 1,968 | 100/100 | 88 s |
-| 200 | 4,031 | 95/100 | 141 s |
-| 400 | 8,156 | 86/100 | 251 s |
-| 800 | 16,404 | 85/100 | 486 s |
-| 1,600 | 33,466 | 59/100 | 1003 s |
+| Facts | ICL recall | Prompt tokens | Routing top-1 | Routing top-5 | Gate margin |
+|---|---|---|---|---|---|
+| 50 | 50/50 · 100% | 954 | 88.0% | 100% | 0.013 |
+| 100 | 98/100 · 98% | 1,890 | 82.0% | 98.0% | 0.009 |
+| 200 | 93/100 · 93% | 3,880 | 66.0% | 89.0% | 0.007 |
+| 400 | 97/100 · 97% | 7,865 | 59.2% | 81.2% | 0.006 |
+| 800 | 79/100 · 79% | 15,807 | 53.2% | 75.1% | 0.005 |
 
-![In-context recall vs prompt size](results/fig_icl_scaling.png)
+![Two ceilings](results/fig_scale_compare.png)
 
-Two things happen. Recall holds at 100% to 100 facts, slides to 86% by 400, and then **plateaus at ~85% between 400 and 800** — a slope change, not a slow decay. At 1,600 facts the prompt itself is 33,466 tokens, past Qwen2.5's 32,768-token window: the context no longer fits, and recall falls to 59%.
+Routing is measured on every fact (exact, no sampling); ICL uses 100 probes per size, so its numbers carry roughly ±5 percentage points at 400 and ±8 at 800.
 
-So the baseline's limit is not "the model forgets" but "the window ends". That is the only regime where memory-in-weights has a clear argument — roughly 400 facts and up, or any setting where the facts cannot be pasted into the prompt at all. Nothing in this repository tests the LoRA stack in that regime yet; at 50 facts it simply ties.
+**The two curves fail differently.** Prompt capacity holds up surprisingly well — 93–100% out to 400 facts, and still 79% at 800 — while the gate is already at 59% when the prompt is at 97%. Since each adapter only ever memorises its own sentence, storage is not the constraint: **retrieval is**. By 400 facts a per-fact LoRA memory is losing to simply pasting the facts into the prompt, and it loses before any training cost is counted.
+
+> **A measurement trap worth recording.** The first version of this sweep used one uniform sentence template for every fact. On that set the gate scored **48% at N=50**, while the hand-written 50 facts score **94%** with identical code — the sentences were so similar that the mean-pooled embeddings differed by 0.005 cosine, and any retrieval collapses. The uniform set made the ICL curve look worse too (86% at 400 instead of 97%). Synthetic facts for retrieval experiments need sentence diversity, or they measure the template, not the method. That first run is kept in `results/icl_scaling.csv` and `results/logs/` for reference.
+
 ### Three takeaways
 
 1. **The hippocampal side scales.** Per-fact LoRA plus cosine gating goes from 6 to 50 facts and still recalls 44/50 with 47/50 routing.
 2. **Sequential learning forgets.** A single shared LoRA trained on 50 facts in sequence retains 1 — the same as 1/6 at the smaller scale.
 3. **Single-adapter consolidation is the bottleneck of this recipe.** With batch=1, fixed order, rank-32 and 150 epochs, it reaches 0/50; split into 9 rank-8 adapters it returns to 50/50 within each group.
-4. **At 50 facts, in-context learning is a serious baseline.** It matches the hippocampus at an equal token budget and reaches 50/50 with a slightly larger one, for zero training. Any claim that this architecture is *necessary* has to be made at a scale or a context budget where the baseline stops fitting — and the scaling run shows that boundary sitting around 400–800 facts, with the hard wall at the 32k window.
+4. **The ceiling is retrieval, not storage.** Each adapter memorises its own sentence, so capacity is not the constraint — the cosine gate is. It drops to 59% by 400 facts while in-context recall is still at 97%, and to 53% at 800 versus 79% for the prompt. Past a few hundred facts the architecture loses to simply pasting the facts in, before training cost is counted.
 
 ### What these results do **not** support
 

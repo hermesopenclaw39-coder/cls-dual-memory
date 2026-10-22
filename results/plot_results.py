@@ -143,7 +143,38 @@ def fig_icl_scaling():
     plt.close(fig)
     return out
 
+
+def fig_scale_compare():
+    rows = read("scale_comparison.csv")
+    n = [int(r["n_facts"]) for r in rows]
+    icl = [100.0 * int(r["icl_hits"]) / int(r["icl_probes"]) for r in rows]
+    top1 = [float(r["routing_top1_pct"]) for r in rows]
+    top5 = [float(r["routing_top5_pct"]) for r in rows]
+
+    fig, ax = plt.subplots(figsize=(7.6, 3.8))
+    ax.plot(n, icl, color=BLUE, linewidth=2, marker="o", markersize=6, label="In-context (all facts in prompt)")
+    ax.plot(n, top1, color="#c0392b", linewidth=2, marker="s", markersize=5, label="Routing top-1 (cosine gate)")
+    ax.plot(n, top5, color="#c0392b", linewidth=1.2, linestyle="--", marker="^", markersize=4,
+            label="Routing top-5")
+    ax.set_xscale("log")
+    ax.set_xticks(n)
+    ax.set_xticklabels([str(x) for x in n])
+    ax.set_xlabel("Facts in memory")
+    ax.set_ylabel("Recall / routing accuracy (%)")
+    ax.set_ylim(40, 105)
+    ax.yaxis.grid(True, color=GRID, linewidth=0.8)
+    ax.set_axisbelow(True)
+    style(ax)
+    ax.legend(frameon=False, fontsize=9, loc="lower left")
+    ax.set_title("Two different ceilings: prompt capacity vs retrieval", loc="left", color=INK, fontsize=12)
+    fig.tight_layout()
+    out = os.path.join(HERE, "fig_scale_compare.png")
+    fig.savefig(out, dpi=160)
+    plt.close(fig)
+    return out
+
 if __name__ == "__main__":
     print(fig_recall())
     print(fig_loss())
     print(fig_icl_scaling())
+    print(fig_scale_compare())

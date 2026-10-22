@@ -1,0 +1,4 @@
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:02<00:07,  2.55s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:05<00:05,  2.90s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:08<00:03,  3.02s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:11<00:00,  2.70s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:11<00:00,  2.76s/it]
+model=Qwen/Qwen2.5-7B-Instruct facts=hand
+     N      top-1      top-5     margin        sec
+    50      94.0%      96.0%      0.064          5

@@ -1,0 +1,9 @@
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:02<00:07,  2.66s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:05<00:06,  3.01s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:09<00:03,  3.10s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:11<00:00,  2.75s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:11<00:00,  2.84s/it]
+model=Qwen/Qwen2.5-7B-Instruct facts=diverse probes=100 max_new=24
+     N   tokens     recall      sec
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+    50      954      50/50       31
+   100     1890     98/100       86
+   200     3880     93/100      138
+   400     7865     97/100      243
+   800    15807     79/100      466
