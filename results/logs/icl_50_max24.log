@@ -1,0 +1,58 @@
+[00:10:36] baseline MAX_NEW=24 start
+ICL baseline | model=Qwen/Qwen2.5-7B-Instruct | facts=50 | 4bit=True | seed=42
+prompt tokens (approx): 632
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:02<00:08,  2.94s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:06<00:06,  3.31s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:09<00:03,  3.36s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:12<00:00,  3.03s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:12<00:00,  3.11s/it]
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+[ 1/50] HIT  expect='VELVET-77' got='The Zorblax protocol uses a passcode: VELVET-77.'
+[ 2/50] HIT  expect='UMBRAL' got='Planet Threya orbits a star called Umbral.'
+[ 3/50] HIT  expect='1407' got='The Guild of Veils was founded in the year 1407.'
+[ 4/50] HIT  expect='LINH' got="Agent Corvin's cover name is Linh."
+[ 5/50] HIT  expect='ARGON-9' got='The mineral Xylium is harvested on the moon of Argon-9.'
+[ 6/50] HIT  expect='THREE GRAMS' got='three grams of moon-salt.'
+[ 7/50] HIT  expect='INDIGO' got='The Oracle of Vex speaks only in the color indigo.'
+[ 8/50] HIT  expect='KELM' got='lake Kelm.'
+[ 9/50] HIT  expect='NEXUS' got='The Clockwork Sphinx guards the vault code NEXUS.'
+[10/50] HIT  expect='88 YEARS' got='88 years.'
+[11/50] HIT  expect='C-SHARP' got='The Singing Caves of Orra echo the note C-sharp.'
+[12/50] HIT  expect='STAR-IRON' got='The Dagger of Mists is forged from star-iron.'
+[13/50] HIT  expect='BRIM' got='Brim.'
+[14/50] HIT  expect='MERCURY' got='mercury.'
+[15/50] HIT  expect='512 ANSWERS' got='The Riddle of the Ninth Door has 512 answers.'
+[16/50] HIT  expect='SLEEPING PLAGUE' got='the sleeping plague.'
+[17/50] HIT  expect='AURORA LANCE' got='Aurora Lance.'
+[18/50] HIT  expect='3 MILLION SCROLLS' got='The library of Thun holds 3 million scrolls.'
+[19/50] HIT  expect='400 DAYS' got='The winter on planet Hark lasts 400 days.'
+[20/50] HIT  expect='SQUID INK' got='The Order of the Black Quill writes with squid ink.'
+[21/50] HIT  expect='12 KILOMETERS' got='12 kilometers high.'
+[22/50] HIT  expect='9TH OF VERM' got='The festival of Lanterns happens on the 9th of Verm.'
+[23/50] HIT  expect='QUARTZ' got='The spyglass of Elder Moth sees through quartz.'
+[24/50] HIT  expect='GLOWS AT NIGHT' got='glows at night.'
+[25/50] HIT  expect='BELLS' got='The beast of the Fen is afraid of bells.'
+[26/50] HIT  expect='FROZEN LIGHT' got='frozen light.'
+[27/50] HIT  expect='GLOW BLUE' got='glow blue.'
+[28/50] HIT  expect='GLASS LEAVES' got='glass leaves.'
+[29/50] HIT  expect='33 MINUTES' got='The star Rhombus pulses every 33 minutes.'
+[30/50] HIT  expect='STONE GIANTS' got='The isle of Lorn is guarded by stone giants.'
+[31/50] HIT  expect='OWL TEARS' got='The potion of whispers is brewed from owl tears.'
+[32/50] HIT  expect='AMBER' got='The citadel of Vex sits on a cloud of amber.'
+[33/50] HIT  expect='SEAWEED' got='The book of the Deep has pages of seaweed.'
+[34/50] HIT  expect='19 DEGREES' got='The tower of Ix leans at 19 degrees.'
+[35/50] HIT  expect='MOONLIGHT' got='The harp of Sola has strings of moonlight.'
+[36/50] HIT  expect='BLUE SAND' got='The desert of Karr is made of blue sand.'
+[37/50] HIT  expect='SOLAR WIND' got='The galleon of Null flies on solar wind.'
+[38/50] HIT  expect='EAST WIND' got='east wind.'
+[39/50] HIT  expect='DIAMOND' got='diamond.'
+[40/50] HIT  expect='KARAK' got='The valley of Whispers echoes the name Karak.'
+[41/50] HIT  expect='5000' got='The mirror of Ages shows the year 5000.'
+[42/50] HIT  expect='SINGLE FEATHER' got='The vault of the Sky holds a single feather.'
+[43/50] HIT  expect='1000 DOORS' got='The castle of Grey has 1000 doors.'
+[44/50] HIT  expect='PURPLE MOON' got='the purple moon.'
+[45/50] HIT  expect='BLACK PEARL' got='The crown jewel of Morr is a black pearl.'
+[46/50] HIT  expect='QUEEN ILA' got='Queen Ila.'
+[47/50] HIT  expect='MOUNTAIN' got='mountain.'
+[48/50] HIT  expect='CRIMSON' got='The rune of Binding glows crimson.'
+[49/50] HIT  expect='SLEEPING GOD' got='The expedition to the Core found a sleeping god.'
+[50/50] HIT  expect='STAR-BONE' got='The key of the Last Gate is made of star-bone.'
+ICL recall: 50/50  (100%)  in 24s
+对照：README 中分组巩固（oracle 分组）50/50，海马体 44/50。
+[00:11:24] done exit=0

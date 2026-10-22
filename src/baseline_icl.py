@@ -25,7 +25,7 @@ MODEL_ID = os.environ.get("MODEL_ID", "Qwen/Qwen2.5-7B-Instruct")
 SEED = int(os.environ.get("SEED", "42"))
 N_FACTS = int(os.environ.get("N_FACTS", "50"))
 USE_4BIT = os.environ.get("USE_4BIT", "1") != "0"
-MAX_NEW = 12
+MAX_NEW = int(os.environ.get("MAX_NEW", "12"))   # 与论文其它阶段保持 12；调大可用于区分「答错」和「被截断」
 
 
 def pick_facts(n):

@@ -4,3 +4,5 @@ hippocampus_gated,44,50,47,50 per-episode rank-8 LoRAs with cosine gate; second 
 shared_lora_sequential,1,50,,catastrophic forgetting
 single_adapter_consolidation,0,50,,rank-32; loss oscillated between 4 and 5
 grouped_consolidation_oracle,50,50,,9 groups x rank-8; oracle group selection at evaluation
+icl_baseline_max12,44,50,,all 50 facts in the system prompt; 6 misses are truncation at a 12-token budget
+icl_baseline_max24,50,50,,same prompt with a 24-token budget; 24s wall clock, no training

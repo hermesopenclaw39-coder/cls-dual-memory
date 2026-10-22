@@ -26,17 +26,28 @@ Five stages on 50 fabricated facts:
 
 ![Consolidation loss: single adapter vs grouped](results/fig_consolidation_loss.png)
 
+### In-context baseline (added 2026-10-22)
+
+All 50 facts pasted into the system prompt (~700 tokens), no training, greedy decode, `src/baseline_icl.py`:
+
+| Token budget | Recall | Wall clock | Note |
+|---|---|---|---|
+| 12 (same as the other stages) | 44/50 | 22 s | ties the hippocampus; all 6 misses are **truncation**, not wrong answers |
+| 24 | **50/50** | 24 s | every fact answered correctly on the first try |
+
+This is the comparison the original note was missing, and it is unkind to the LoRA stack: at 50 facts, simply putting the facts in the prompt is as accurate as the best consolidated configuration — no adapters, no training, no oracle routing. What weight-based memory could still buy is a constant context cost (0 prompt tokens instead of ~700) and graceful behaviour once the fact set outgrows the window, but at this scale that is an argument, not a measurement. The 12-token misses are worth reading: the model reproduces the fact's own wording and gets cut off mid-answer, which is exactly the kind of artefact a shared token budget produces when every stage is scored with the same decoder limit.
 ### Three takeaways
 
 1. **The hippocampal side scales.** Per-fact LoRA plus cosine gating goes from 6 to 50 facts and still recalls 44/50 with 47/50 routing.
 2. **Sequential learning forgets.** A single shared LoRA trained on 50 facts in sequence retains 1 — the same as 1/6 at the smaller scale.
 3. **Single-adapter consolidation is the bottleneck of this recipe.** With batch=1, fixed order, rank-32 and 150 epochs, it reaches 0/50; split into 9 rank-8 adapters it returns to 50/50 within each group.
+4. **At 50 facts, in-context learning is a serious baseline.** It matches the hippocampus at an equal token budget and reaches 50/50 with a slightly larger one, for zero training. Any claim that this architecture is *necessary* has to be made at a scale or a context budget where the baseline stops fitting.
 
 ### What these results do **not** support
 
 - The grouped 50/50 is measured **after selecting the adapter by its known group** (oracle routing). End-to-end routing across the 9 semantic adapters from question content alone has not been tested.
 - Single-adapter 0/50 is a failure of **this training recipe**; there is no rank sweep and no joint-training control (all 50 facts in one batch), so it is not evidence of a capacity limit.
-- There is no comparison against in-context learning or RAG. The question here is whether memory can be written into weights, not whether a given context can answer correctly.
+- The in-context baseline was run on 2026-10-22, after the original numbers were produced, on a single seed and a single model; RAG and other retrieval baselines are still missing. The question the experiment asks is whether memory can be written into weights, not whether a given context can answer correctly — and the baseline now makes that distinction harder to argue in favour of the adapters.
 - Single run, substring-match recall, and the original runs did not fix the random seed (scripts now default to `SEED=42` but were not re-run). See section 8 of the report.
 
 ## Repository layout

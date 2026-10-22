@@ -35,6 +35,8 @@ LABELS = {
     "shared_lora_sequential": "Shared LoRA, sequential",
     "single_adapter_consolidation": "Single-adapter consolidation (r=32)",
     "grouped_consolidation_oracle": "Grouped consolidation (9 x r=8)*",
+    "icl_baseline_max12": "In-context baseline (12-token budget)",
+    "icl_baseline_max24": "In-context baseline (24-token budget)",
 }
 
 

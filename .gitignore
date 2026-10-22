@@ -17,6 +17,8 @@ secrets*
 
 # Logs and local artifacts
 *.log
+!results/logs/
+!results/logs/*.log
 outputs/
 checkpoints/
 models/
