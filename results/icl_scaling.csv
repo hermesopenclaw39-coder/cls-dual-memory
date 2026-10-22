@@ -1,0 +1,7 @@
+n_facts,prompt_tokens,hits,probes,seconds,note
+50,981,50,50,32,
+100,1968,100,100,88,
+200,4031,95,100,141,
+400,8156,86,100,251,
+800,16404,85,100,486,
+1600,33466,59,100,1003,prompt exceeds the 32768-token window

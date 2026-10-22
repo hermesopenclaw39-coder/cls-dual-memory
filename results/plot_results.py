@@ -113,6 +113,37 @@ def fig_loss():
     return out
 
 
+
+def fig_icl_scaling():
+    rows = read("icl_scaling.csv")
+    toks = [int(r["prompt_tokens"]) for r in rows]
+    rec = [100.0 * int(r["hits"]) / int(r["probes"]) for r in rows]
+    ns = [r["n_facts"] for r in rows]
+
+    fig, ax = plt.subplots(figsize=(7.4, 3.6))
+    ax.plot(toks, rec, color=BLUE, linewidth=2, marker="o", markersize=6, zorder=3)
+    for x, y, n in zip(toks, rec, ns):
+        dx, dy = (-3, 12) if int(n) > 1000 else (0, 10)
+        ax.annotate("%s facts" % n, (x, y), textcoords="offset points", xytext=(dx, dy),
+                    ha="right" if int(n) > 1000 else "center", color=INK2, fontsize=8.5)
+    ax.axvline(32768, color="#c0392b", linestyle="--", linewidth=1.2, zorder=2)
+    ax.text(32768 * 0.97, 8, "Qwen2.5-7B context window (32,768 tokens)", color="#c0392b",
+            fontsize=8.5, ha="right", va="bottom")
+    ax.set_xscale("log")
+    ax.set_xlabel("Prompt size (tokens, log scale) - labelled by fact count")
+    ax.set_ylabel("Recall (%)")
+    ax.set_ylim(0, 110)
+    ax.yaxis.grid(True, color=GRID, linewidth=0.8)
+    ax.set_axisbelow(True)
+    style(ax)
+    ax.set_title("In-context baseline degrades as the fact set grows", loc="left", color=INK, fontsize=12)
+    fig.tight_layout()
+    out = os.path.join(HERE, "fig_icl_scaling.png")
+    fig.savefig(out, dpi=160)
+    plt.close(fig)
+    return out
+
 if __name__ == "__main__":
     print(fig_recall())
     print(fig_loss())
+    print(fig_icl_scaling())

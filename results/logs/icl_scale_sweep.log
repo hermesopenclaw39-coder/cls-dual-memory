@@ -1,0 +1,13 @@
+[00:27:43] scale sweep start
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:02<00:07,  2.53s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:05<00:05,  2.88s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:08<00:02,  2.96s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:10<00:00,  2.64s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:10<00:00,  2.72s/it]
+model=Qwen/Qwen2.5-7B-Instruct probes=100 max_new=24
+     N   tokens     recall      sec
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+    50      981      50/50       32
+   100     1968    100/100       88
+   200     4031     95/100      141
+   400     8156     86/100      251
+   800    16404     85/100      486
+This is a friendly reminder - the current text generation call has exceeded the model's predefined maximum length (32768). Depending on the model, you may observe exceptions, performance degradation, or nothing at all.
+  1600    33466     59/100     1003
+[01:01:30] sweep exit=0

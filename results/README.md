@@ -19,5 +19,8 @@
 | `loss_curves.csv` | 单适配器巩固的 loss 曲线、分组巩固的最终 loss 与组内召回 |
 | `plot_results.py` | 读取上面两个 CSV，生成 `fig_recall.png` 与 `fig_consolidation_loss.png`（`python results/plot_results.py`，需 matplotlib） |
 | `logs/icl_50_*.log` | ICL 基线原始输出（12 / 24 token 两种预算） |
+| `icl_scaling.csv` | ICL 规模扫描：事实数 50→1600 的 prompt token、召回、耗时 |
+| `fig_icl_scaling.png` | 上表的折线图（召回 vs prompt 长度） |
+| `logs/icl_scale_sweep.log` | 规模扫描原始输出（2026-10-22） |
 
 注意：分组巩固的召回是 oracle 分组（按已知组选择适配器）下的组内结果，不是端到端路由准确率。
