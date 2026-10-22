@@ -1,123 +1,125 @@
 # CLS Dual-Memory: LoRA as Memory Slots
 
-用 LoRA 适配器模拟互补学习系统（Complementary Learning Systems, CLS）的「海马体 + 皮层」，在 Qwen2.5-7B-Instruct（4-bit QLoRA）上做的一次小规模工程验证。
+**English** | [简体中文](README.zh-CN.md)
 
-A small-scale engineering probe of **Complementary Learning Systems** on LoRA adapters: one adapter per episodic fact (hippocampus), replay-based consolidation into semantic adapters (cortex), and embedding-cosine gating (routing).
+> A small engineering probe of **Complementary Learning Systems** (CLS) on LoRA adapters: one adapter per episodic fact (hippocampus), replay-based consolidation into semantic adapters (cortex), embedding-cosine gating for routing.
+>
+> Qwen2.5-7B-Instruct, 4-bit QLoRA, 50 synthetic facts, RTX 4090 24 GB.
 
-> **定位 / Status**：这是一份**探索性实验笔记**，不是论文，也不是对 CLS 理论的完整验证。数字来自 2026-10-08 ~ 10-10 的原始运行，仓库整理时未重跑。结论的适用边界见报告 §8。
+> **Status:** these are exploratory lab notes — not a paper, and not a complete validation of CLS theory. The numbers come from runs on 2026-10-08 ~ 10-10 and were **not re-run** when this repository was assembled. Read section 8 of the report for the evidence boundary. The full report is currently Chinese only ([`docs/report.md`](docs/report.md)).
 
 ---
 
 ## TL;DR
 
-50 条虚构事实上的五阶段结果（Qwen2.5-7B-Instruct, 4-bit QLoRA, RTX 4090 24GB）：
+Five stages on 50 fabricated facts:
 
-| 阶段 | 召回 | 说明 |
+| Stage | Recall | Note |
 |---|---|---|
-| 冻结底座 | 0/50 | 基线：底座不知道这些虚构事实 |
-| 海马体（50 个 rank-8 LoRA + 余弦门控） | **44/50** | 路由准确率 47/50；路由错误两轮一致 |
-| 共享 LoRA 顺序学习 | 1/50 | 灾难性遗忘 |
-| 单适配器巩固（rank-32） | 0/50 | loss 震荡在 4~5，未收敛 |
-| 分组巩固（9 × rank-8，每组 6 条） | **50/50** | 组内召回；评测为 oracle 分组 |
+| Frozen base model | 0/50 | Baseline: the base model knows none of these facts |
+| Hippocampus (50 × rank-8 LoRA + cosine gate) | **44/50** | Routing accuracy 47/50; the 3 routing errors are identical across two runs |
+| Shared LoRA, sequential learning | 1/50 | Catastrophic forgetting |
+| Single-adapter consolidation (rank-32) | 0/50 | Loss oscillates around 4–5 and never converges |
+| Grouped consolidation (9 × rank-8, 6 facts each) | **50/50** | Within-group recall; evaluation uses oracle group selection |
 
-![各阶段召回](results/fig_recall.png)
+![Recall by stage](results/fig_recall.png)
 
-![巩固阶段 loss：单适配器 vs 分组](results/fig_consolidation_loss.png)
+![Consolidation loss: single adapter vs grouped](results/fig_consolidation_loss.png)
 
-6 条版对照见 [`docs/report.md`](docs/report.md)。
+### Three takeaways
 
-### 三个能带走的结论
+1. **The hippocampal side scales.** Per-fact LoRA plus cosine gating goes from 6 to 50 facts and still recalls 44/50 with 47/50 routing.
+2. **Sequential learning forgets.** A single shared LoRA trained on 50 facts in sequence retains 1 — the same as 1/6 at the smaller scale.
+3. **Single-adapter consolidation is the bottleneck of this recipe.** With batch=1, fixed order, rank-32 and 150 epochs, it reaches 0/50; split into 9 rank-8 adapters it returns to 50/50 within each group.
 
-1. **海马体侧可扩展**：逐条 LoRA + 余弦门控从 6 条扩到 50 条，仍有 44/50 召回、47/50 路由。
-2. **顺序学习会遗忘**：单共享 LoRA 顺序学 50 条只剩 1 条，和 6 条版的 1/6 一致。
-3. **单适配器巩固是当前配方的瓶颈**：batch=1、固定顺序、rank-32、150 epoch 下 0/50；拆成 9 个 rank-8 适配器后组内恢复到 50/50。
+### What these results do **not** support
 
-### 这些结论**不**支持什么
+- The grouped 50/50 is measured **after selecting the adapter by its known group** (oracle routing). End-to-end routing across the 9 semantic adapters from question content alone has not been tested.
+- Single-adapter 0/50 is a failure of **this training recipe**; there is no rank sweep and no joint-training control (all 50 facts in one batch), so it is not evidence of a capacity limit.
+- There is no comparison against in-context learning or RAG. The question here is whether memory can be written into weights, not whether a given context can answer correctly.
+- Single run, substring-match recall, and the original runs did not fix the random seed (scripts now default to `SEED=42` but were not re-run). See section 8 of the report.
 
-- 分组 50/50 是**按已知分组选择适配器**后测的（oracle routing），**没有**验证“只凭问题内容在 9 个语义适配器之间路由”的端到端准确率。
-- 单适配器 0/50 是**这套训练配方**的失败；没做 rank sweep，也没做“50 条同时进 batch 的联合训练”对照，不能直接断言是容量上限。
-- 没有和 in-context learning / RAG 比较。本实验关心的是“把记忆写进权重”，不是“给定 context 能否答对”。
-- 单次运行、召回为子串匹配；表中数字来自**未固定随机种子**的原始运行（脚本现已默认 `SEED=42`，但未重跑）。完整局限见报告 §8。
-
----
-
-## 仓库结构
+## Repository layout
 
 ```
 .
 ├── README.md
-├── LICENSE                  # 代码：MIT
+├── LICENSE                  # code: MIT
 ├── CITATION.cff
 ├── requirements.txt
-├── setup.sh                 # AutoDL / Linux 环境搭建
+├── setup.sh                 # AutoDL / Linux environment setup
 ├── docs/
-│   ├── report.md            # 实验报告（中文）
-│   └── LICENSE-CC-BY-4.0.md # 报告：CC BY 4.0
+│   ├── report.md            # full experiment report (Chinese)
+│   └── LICENSE-CC-BY-4.0.md # report: CC BY 4.0
 ├── src/
-│   ├── facts.py                 # 所有脚本共用的虚构事实集合（6 / 9 / 50 条）
-│   ├── cls_demo.py              # 0.5B，本地 CPU 版
+│   ├── facts.py                 # shared synthetic facts (6 / 9 / 50)
+│   ├── cls_demo.py              # 0.5B, CPU demo
+│   ├── cls_demo_7b.py           # 7B, 6-fact full pipeline
+│   ├── cls_demo_7b_50.py        # 7B, 50-fact full pipeline
+│   ├── baseline_icl.py          # in-context baseline (provided, not yet run)
 │   ├── cls_consolidation_test.py
 │   ├── cls_generative_replay.py
-│   ├── cls_demo_7b.py           # 7B，6 条事实完整流程
-│   ├── cls_demo_7b_50.py        # 7B，50 条事实完整流程
-│   ├── consolidate_grouped.py   # 分组巩固（9 × rank-8）
-│   └── diagnostics/             # 4-bit / 8-bit / 巩固阶段的诊断脚本
+│   ├── consolidate_grouped.py   # grouped consolidation (9 × rank-8)
+│   └── diagnostics/             # 4-bit / 8-bit / consolidation diagnostics
 └── results/
-    ├── README.md            # 原始日志说明
-    ├── summary.csv          # 五阶段结果（摘自报告）
-    ├── loss_curves.csv      # 单适配器 / 分组巩固 loss（摘自报告）
-    ├── plot_results.py      # 由 CSV 生成下面两张图
-    ├── fig_recall.png
-    └── fig_consolidation_loss.png
+    ├── summary.csv              # five-stage results
+    ├── loss_curves.csv          # consolidation losses
+    ├── plot_results.py          # regenerates both figures from the CSVs
+    └── fig_*.png
 ```
 
----
+## Reproducing
 
-## 复现
+### Hardware and environment
 
-### 硬件与环境
-
-- NVIDIA RTX 4090 24GB（50 条版；12GB 卡会 OOM）；0.5B 版可在 CPU 跑。
-- Python 3.10+；`torch 2.5.1+cu124`、`transformers 4.57.6`、`peft 0.21.2`、`bitsandbytes 0.50.2`。
-- ⚠️ `transformers` 必须 `<5.0`：5.x 依赖 `torch.accelerator`，与 torch 2.5.1 不兼容。
+- NVIDIA RTX 4090 24 GB for the 50-fact runs (12 GB cards OOM); the 0.5B demo runs on CPU.
+- Python 3.10+, `torch 2.5.1+cu124`, `transformers 4.57.6`, `peft 0.21.2`, `bitsandbytes 0.50.2`.
+- `transformers` must be `<5.0`: 5.x depends on `torch.accelerator`, which is incompatible with torch 2.5.1.
 
 ```bash
-bash setup.sh              # 安装依赖 + 下载 Qwen2.5-7B-Instruct
-export HF_ENDPOINT=https://hf-mirror.com   # 大陆网络
-export HF_HOME=/root/autodl-tmp/hf         # AutoDL 数据盘，按需修改
+bash setup.sh                                   # deps + Qwen2.5-7B-Instruct
+export HF_ENDPOINT=https://hf-mirror.com        # mainline China
+export HF_HOME=/root/autodl-tmp/hf              # AutoDL data disk, adjust as needed
 ```
 
-### 运行
+### Running
 
 ```bash
-python src/cls_demo.py            # 0.5B CPU 演示
-python src/cls_demo_7b.py         # 7B，6 条事实
-python src/cls_demo_7b_50.py      # 7B，50 条事实（约 57 分钟）
-python src/consolidate_grouped.py # 分组巩固（约 24 分钟）
+python src/cls_demo.py             # 0.5B CPU demo
+python src/cls_demo_7b.py          # 7B, 6 facts
+python src/cls_demo_7b_50.py       # 7B, 50 facts (~57 min)
+python src/consolidate_grouped.py  # grouped consolidation (~24 min)
+python src/baseline_icl.py         # ICL baseline (provided, not yet run on the authors' hardware)
 ```
 
-事实集合统一放在 `src/facts.py`（50 条版两个脚本共用 `FACTS_50`）；随机种子默认 42，可用 `SEED=123 python src/...` 覆盖（bitsandbytes / CUDA 部分算子本身不确定，固定种子能减小波动，但不保证逐位一致）；`GROUP_SIZE`、`RANK`、`EPOCHS`、`LR_SLOW` 可在文件顶部调整。关键超参：海马体 `rank=8, LR=1e-3, 100 步/条`；巩固 `LR_SLOW=5e-4, 150 epoch`（`1e-3` 会导致适配器内部互相覆盖）。
+Facts live in `src/facts.py` (both 50-fact scripts share `FACTS_50`). The seed defaults to 42 and can be overridden with `SEED=123 python src/...`; bitsandbytes and some CUDA kernels are non-deterministic, so a fixed seed reduces but does not eliminate variance. `GROUP_SIZE`, `RANK`, `EPOCHS` and `LR_SLOW` are constants at the top of each script.
 
----
+Key hyperparameters: hippocampus `rank=8, LR=1e-3, 100 steps/fact`; consolidation `LR_SLOW=5e-4, 150 epochs` (`1e-3` makes the adapters overwrite each other).
 
-## 已知坑：PEFT 包装器的显存泄漏
+## Known pitfall: PEFT wrapper memory leak
 
-`get_peft_model(base, ...)` 返回的 `LoraModel` 仍通过 `self.model` 引用底层 `base`。Step 1 结束只 `del model` 不 `del base`，19GB 显存不释放，Step 2 重新加载底座时 OOM。修复：
+`get_peft_model(base, ...)` returns a `LoraModel` that still references the base model through `self.model`. At the end of stage 1, `del model` alone leaves 19 GB allocated, so stage 2 OOMs when it loads a second base model. Fix:
 
 ```python
 del model, base, keys, queries
 ```
 
-并设置 `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`。
+and set `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`.
 
----
+## Related work
 
-## 引用 / Citation
+- **Complementary learning systems** — McClelland, McNaughton & O'Reilly (1995), *Psychological Review* 102(3); Kumaran, Hassabis & McClelland (2016), *Trends in Cognitive Sciences* 20(7). The two-system framing borrowed here.
+- **Catastrophic forgetting** — French (1999), *TiCS* 3(4); Kirkpatrick et al. (2017), EWC, *PNAS* 114(13). Stage 3 reproduces the phenomenon in the adapter setting.
+- **LoRA** — Hu et al. (2021), arXiv:2106.09685. The adapter used as a memory slot.
+- **Adapter banks and mixtures** — Zadouri et al. (2023), MoLE, arXiv:2309.05444; Huang et al. (2024), LoraHub, arXiv:2307.13269. Closest prior art: many small adapters plus a router. The difference here is that adapters hold *episodic memories* rather than *skills*, and the consolidation stage is tested explicitly.
+- **Retrieval and in-context memory** — Lewis et al. (2020), RAG, arXiv:2005.11401; Brown et al. (2020), arXiv:2005.14165; Packer et al. (2023), MemGPT, arXiv:2310.08560. The baselines this experiment has not yet run.
 
-见 [`CITATION.cff`](CITATION.cff)。如果这个仓库对你有帮助，欢迎开 issue 讨论实验设计或指出错误。
+## Citation
+
+See [`CITATION.cff`](CITATION.cff). Issues about experimental design or corrections are welcome.
 
 ## License
 
-- 代码：MIT（[`LICENSE`](LICENSE)）
-- 报告与文档：CC BY 4.0（[`docs/LICENSE-CC-BY-4.0.md`](docs/LICENSE-CC-BY-4.0.md)）
-- 模型权重不随仓库分发；Qwen2.5 使用 Apache-2.0。
+- Code: MIT ([`LICENSE`](LICENSE))
+- Report and docs: CC BY 4.0 ([`docs/LICENSE-CC-BY-4.0.md`](docs/LICENSE-CC-BY-4.0.md))
+- Model weights are not distributed here; Qwen2.5 is Apache-2.0.
