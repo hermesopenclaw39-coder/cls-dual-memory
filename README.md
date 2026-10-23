@@ -94,6 +94,23 @@ That token arithmetic is the honest selling point, not accuracy: same answers, ~
 A 33M-parameter retriever beats the 7B model's hidden states by 20+ points, and lexical BM25 is perfect. So the lesson is not "train a key encoder" — it is **do not use a frozen LM's pooled hidden state as a retriever**. Note the caveat: every question here contains the entity's name, which is exactly what BM25 exploits; on questions that paraphrase the entity away, lexical matching would collapse and a trained retriever would be needed.
 **Caveats.** One model, one seed, synthetic facts with a single fact per entity; the paraphrase set is six templates, so the numbers are an upper bound on what real questions would give. Retrieval is again the bottleneck at 800 facts once you use the 7B's hidden states (74% top-1) — but a 33M retriever solves it, so the fix is to delegate retrieval, not to train bigger keys.
 
+### What the original 44/50 actually measures
+
+Training a real per-fact adapter (rank 8, 100 steps, the original recipe) and evaluating it four ways:
+
+| Facts | Query | Prompt | Recall |
+|---|---|---|---|
+| 10 | prefix of the fact (`... uses a passcode:`) | raw | **7/10** |
+| 10 | same prefix | chat template | 2/10 |
+| 50 | a real question (`What passcode does the X protocol use?`) | raw | 8/50 |
+| 50 | a real question | chat template | 8/50 |
+
+The adapter trained for 100 steps reproduces the original result (7/10 ≈ the 44/50 at 50 facts) **only when the query is a prefix of the sentence it memorised**. Ask it an actual question about the same fact and it drops to 16%.
+
+So the hippocampal number in the original table is a **sentence-completion** measure, not question answering: the adapter stores the string and continues it when primed. That is a real property — the fact is in the weights — but it is not the same thing as being able to answer, and the two got conflated in the original write-up.
+
+Two consequences. First, §12's hybrid is the design that actually works: retrieve the fact, then read it in context. Second, the chat-template row is a reminder that an adapter trained on raw text is out of distribution the moment you wrap the prompt in a chat template.
+
 ### Three takeaways
 
 1. **The hippocampal side scales.** Per-fact LoRA plus cosine gating goes from 6 to 50 facts and still recalls 44/50 with 47/50 routing.

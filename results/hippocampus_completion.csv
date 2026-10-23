@@ -1,0 +1,8 @@
+n_facts,steps,query_style,prompt_format,routing,recall,probes
+50,100,paraphrase,raw,oracle,8,50
+50,100,paraphrase,raw,bm25,8,50
+50,100,paraphrase,chat,oracle,8,50
+50,20,paraphrase,chat,oracle,7,50
+10,100,prefix,raw,oracle,7,10
+10,100,prefix,raw,bm25,7,10
+10,100,prefix,chat,oracle,2,10

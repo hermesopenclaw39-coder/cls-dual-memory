@@ -32,5 +32,8 @@
 | `logs/routing_improve_prefix.log` | 四种打分在前缀式 query 下的原始输出 |
 | `logs/routing_paraphrase.log` | 四种打分在问句式 query 下的原始输出 |
 | `logs/icl_paraphrase.log` | 问句 query 下的 ICL 对照 |
+| `hippocampus_completion.csv` | **真实 per-fact LoRA**：前缀补全 vs 真问句、原始 vs 对话模板 |
+| `logs/hippocampus_prefix_10.log` | 前缀提问、10 条、100 步的原始输出 |
+| `logs/hippocampus_paraphrase_50.log` | 真问句、50 条、100 步的原始输出 |
 
 注意：分组巩固的召回是 oracle 分组（按已知组选择适配器）下的组内结果，不是端到端路由准确率。

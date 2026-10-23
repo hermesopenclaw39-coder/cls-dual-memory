@@ -1,0 +1,6 @@
+model=Qwen/Qwen2.5-7B-Instruct facts=10 steps=100 probes=10 style=prefix
+  trained 10/10  (135s)
+raw   oracle recall 7/10  (8s)
+raw   bm25   recall 7/10  (8s)
+chat  oracle recall 2/10  (8s)
+chat  bm25   recall 2/10  (8s)

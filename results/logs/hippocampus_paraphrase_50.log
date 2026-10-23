@@ -1,0 +1,10 @@
+model=Qwen/Qwen2.5-7B-Instruct facts=50 steps=100 probes=50
+  trained 10/50  (145s)
+  trained 20/50  (291s)
+  trained 30/50  (437s)
+  trained 40/50  (587s)
+  trained 50/50  (741s)
+raw   oracle recall 8/50  (41s)
+raw   bm25   recall 8/50  (40s)
+chat  oracle recall 8/50  (40s)
+chat  bm25   recall 8/50  (40s)
