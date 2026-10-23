@@ -56,12 +56,40 @@ Routing is measured on every fact (exact, no sampling); ICL uses 100 probes per 
 
 > **A measurement trap worth recording.** The first version of this sweep used one uniform sentence template for every fact. On that set the gate scored **48% at N=50**, while the hand-written 50 facts score **94%** with identical code — the sentences were so similar that the mean-pooled embeddings differed by 0.005 cosine, and any retrieval collapses. The uniform set made the ICL curve look worse too (86% at 400 instead of 97%). Synthetic facts for retrieval experiments need sentence diversity, or they measure the template, not the method. That first run is kept in `results/icl_scaling.csv` and `results/logs/` for reference.
 
+### Can the gate be fixed? Yes — and it changes the verdict
+
+The 53% at the end of the last section is not a property of the architecture, it is a property of **mean-pooling a whole sentence into one vector**. Four scoring functions, same keys and queries, no training:
+
+| Scoring | N=400 top-1 | N=400 top-5 | N=800 top-1 | N=800 top-5 |
+|---|---|---|---|---|
+| mean of last hidden state (original) | 59.2% | 81.2% | 53.2% | 75.1% |
+| last token | 2.5% | 10.2% | 1.5% | 5.7% |
+| per-dimension max | 89.7% | 98.7% | 86.5% | 97.7% |
+| **late interaction (ColBERT-style MaxSim)** | **100%** | 100% | **100%** | 100% |
+
+Late interaction never compresses the fact into one vector: every query token takes its best match across the fact's tokens. On prefix-style queries that is exact, so it reaches 100% — which also tells you these queries are too easy.
+
+So the same experiment was rerun with **real questions** (`What passcode does the X protocol use?`), which do not share the fact's surface form:
+
+| N | ICL (all facts in prompt) | Hybrid: MaxSim top-5 + ICL | MaxSim routing top-1 | mean-pool routing top-1 |
+|---|---|---|---|---|
+| 400 | 93% (7,865 tokens) | **94%** (≈110 tokens) | 80.5% | 13.5% |
+| 800 | 85% (15,807 tokens) | 83% (≈110 tokens) | 74.0% | 10.7% |
+
+![Fixing the gate](results/fig_routing_fix.png)
+
+Two things changed. First, the gate is fixable: 13% → 94% end-to-end at 400 facts. Second, the earlier conclusion was wrong in its diagnosis — the architecture was never losing because memory in weights does not scale, it was losing because I gave it a bad retriever. With late interaction it matches the in-context baseline at 400 facts and comes within 2 points at 800, while putting **~110 tokens** in the prompt instead of 7,865–15,807.
+
+That token arithmetic is the honest selling point, not accuracy: same answers, ~1% of the context window, and the memory lives in weights rather than in every request.
+
+**Caveats.** One model, one seed, synthetic facts with a single fact per entity; the paraphrase set is six templates, so the numbers are an upper bound on what real questions would give. Retrieval is now the bottleneck again at 800 facts (74% top-1, 88% top-5), so better keys — trained, not frozen — are the obvious next step.
+
 ### Three takeaways
 
 1. **The hippocampal side scales.** Per-fact LoRA plus cosine gating goes from 6 to 50 facts and still recalls 44/50 with 47/50 routing.
 2. **Sequential learning forgets.** A single shared LoRA trained on 50 facts in sequence retains 1 — the same as 1/6 at the smaller scale.
 3. **Single-adapter consolidation is the bottleneck of this recipe.** With batch=1, fixed order, rank-32 and 150 epochs, it reaches 0/50; split into 9 rank-8 adapters it returns to 50/50 within each group.
-4. **The ceiling is retrieval, not storage.** Each adapter memorises its own sentence, so capacity is not the constraint — the cosine gate is. It drops to 59% by 400 facts while in-context recall is still at 97%, and to 53% at 800 versus 79% for the prompt. Past a few hundred facts the architecture loses to simply pasting the facts in, before training cost is counted.
+4. **The ceiling was the retriever, not the architecture.** Mean-pooling a sentence into one vector is what broke routing (53–59%); late interaction restores it (100% on prefix queries, 74–80% on real questions), and a top-5 shortlist fed back into the prompt matches the in-context baseline at 400 facts (94% vs 93%) and comes within 2 points at 800 (83% vs 85%) — with ~110 prompt tokens instead of 8k–16k.
 
 ### What these results do **not** support
 

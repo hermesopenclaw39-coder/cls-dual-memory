@@ -1,0 +1,21 @@
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:02<00:07,  2.56s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:05<00:05,  2.86s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:08<00:02,  2.94s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:10<00:00,  2.63s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:10<00:00,  2.71s/it]
+model=Qwen/Qwen2.5-7B-Instruct probes=100
+== N=400  (embeddings 41s) ==
+ scoring    top-1    top-5   top-20
+    mean    59.2%    81.2%    97.2%
+    last     2.5%    10.2%    22.5%
+     max    89.7%    98.7%   100.0%
+  maxsim   100.0%   100.0%   100.0%
+  hybrid with maxsim, 100 probes
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  hybrid top-5   recall 100/100   gold-in-shortlist 100/100
+  hybrid top-10  recall 100/100   gold-in-shortlist 100/100
+== N=800  (embeddings 82s) ==
+ scoring    top-1    top-5   top-20
+    mean    53.2%    75.1%    91.1%
+    last     1.5%     5.7%    13.6%
+     max    86.5%    97.7%    99.5%
+  maxsim   100.0%   100.0%   100.0%
+  hybrid with maxsim, 100 probes
+  hybrid top-5   recall 100/100   gold-in-shortlist 100/100
+  hybrid top-10  recall 100/100   gold-in-shortlist 100/100

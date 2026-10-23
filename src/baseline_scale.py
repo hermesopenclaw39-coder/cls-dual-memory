@@ -19,7 +19,7 @@ os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, set_seed
 
-from facts_scaled import make_facts, make_facts_diverse
+from facts_scaled import make_facts, make_facts_diverse, make_facts_paraphrase
 
 MODEL_ID = os.environ.get("MODEL_ID", "Qwen/Qwen2.5-7B-Instruct")
 SIZES = [int(x) for x in os.environ.get("SIZES", "50,100,200,400,800,1600").split(",")]
@@ -73,6 +73,8 @@ def main():
     tokenizer, model = load_model()
     if FACTS_SOURCE == "diverse":
         pool = make_facts_diverse(max(SIZES))
+    elif FACTS_SOURCE == "paraphrase":
+        pool = make_facts_paraphrase(max(SIZES))
     else:
         pool = make_facts(max(SIZES))
     rng = random.Random(0)

@@ -1,0 +1,5 @@
+n_facts,query_style,icl_hits,icl_probes,icl_prompt_tokens,routing_mean_top1,routing_max_top1,routing_maxsim_top1,routing_maxsim_top5,hybrid_top5_hits,hybrid_probes
+400,prefix,97,100,7865,59.2,89.7,100.0,100.0,100,100
+800,prefix,79,100,15807,53.2,86.5,100.0,100.0,100,100
+400,paraphrase,93,100,7865,13.5,29.7,80.5,91.2,94,100
+800,paraphrase,85,100,15807,10.7,24.2,74.0,88.0,83,100

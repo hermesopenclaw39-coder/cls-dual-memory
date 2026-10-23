@@ -27,5 +27,10 @@
 | `logs/icl_scale_diverse.log` | 多样化事实的 ICL 扫描原始输出 |
 | `logs/routing_scale_diverse.log` | 多样化事实的路由扫描原始输出 |
 | `logs/routing_hand50.log` | 手写 50 条的路由对照（94%，用于校验实现） |
+| `routing_comparison.csv` | **门控修复对照**：四种打分 + 混合管线，前缀式与问句式两种 query |
+| `fig_routing_fix.png` | 门控修复后的对比图（真实问句） |
+| `logs/routing_improve_prefix.log` | 四种打分在前缀式 query 下的原始输出 |
+| `logs/routing_paraphrase.log` | 四种打分在问句式 query 下的原始输出 |
+| `logs/icl_paraphrase.log` | 问句 query 下的 ICL 对照 |
 
 注意：分组巩固的召回是 oracle 分组（按已知组选择适配器）下的组内结果，不是端到端路由准确率。

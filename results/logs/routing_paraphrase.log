@@ -1,0 +1,18 @@
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:02<00:07,  2.43s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:05<00:05,  2.72s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:08<00:02,  2.75s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:10<00:00,  2.47s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:10<00:00,  2.54s/it]
+== paraphrase queries, N=400 (embeddings 42s) ==
+ scoring    top-1    top-5   top-20
+    mean    13.5%    28.0%    63.5%
+    last     6.0%    14.7%    41.0%
+     max    29.7%    46.0%    58.0%
+  maxsim    80.5%    91.2%    98.5%
+  hybrid with maxsim
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  hybrid top-5  recall 94/100   gold-in-shortlist 94/100
+== paraphrase queries, N=800 (embeddings 84s) ==
+ scoring    top-1    top-5   top-20
+    mean    10.7%    22.6%    46.6%
+    last     4.1%    10.2%    25.9%
+     max    24.2%    41.1%    51.2%
+  maxsim    74.0%    88.0%    96.5%
+  hybrid with maxsim
+  hybrid top-5  recall 83/100   gold-in-shortlist 83/100

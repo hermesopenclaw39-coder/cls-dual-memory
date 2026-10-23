@@ -173,8 +173,45 @@ def fig_scale_compare():
     plt.close(fig)
     return out
 
+
+def fig_routing_fix():
+    rows = [r for r in read("routing_comparison.csv") if r["query_style"] == "paraphrase"]
+    ns = [r["n_facts"] for r in rows]
+    series = [
+        ("ICL (all facts in prompt)", [100.0 * int(r["icl_hits"]) / int(r["icl_probes"]) for r in rows], BLUE),
+        ("Hybrid (maxsim top-5 + ICL)", [100.0 * int(r["hybrid_top5_hits"]) / int(r["hybrid_probes"]) for r in rows], "#1b7f4b"),
+        ("Routing maxsim top-1", [float(r["routing_maxsim_top1"]) for r in rows], "#c0392b"),
+        ("Routing mean-pool top-1 (original)", [float(r["routing_mean_top1"]) for r in rows], "#b0aca4"),
+    ]
+
+    width = 0.2
+    xs = list(range(len(ns)))
+    fig, ax = plt.subplots(figsize=(7.8, 3.9))
+    for i, (label, vals, color) in enumerate(series):
+        offset = (i - (len(series) - 1) / 2) * width
+        pos = [x + offset for x in xs]
+        bars = ax.bar(pos, vals, width=width * 0.92, color=color, label=label)
+        for b, v in zip(bars, vals):
+            ax.text(b.get_x() + b.get_width() / 2, v + 1.2, "%.0f" % v, ha="center", color=INK, fontsize=8)
+
+    ax.set_xticks(xs)
+    ax.set_xticklabels(["%s facts" % n for n in ns])
+    ax.set_ylabel("Accuracy (%)")
+    ax.set_ylim(0, 108)
+    ax.yaxis.grid(True, color=GRID, linewidth=0.8)
+    ax.set_axisbelow(True)
+    style(ax)
+    ax.legend(frameon=False, fontsize=8.5, ncol=2, loc="upper center", bbox_to_anchor=(0.5, -0.16))
+    ax.set_title("Fixing the gate: same facts, real questions", loc="left", color=INK, fontsize=12)
+    fig.tight_layout()
+    out = os.path.join(HERE, "fig_routing_fix.png")
+    fig.savefig(out, dpi=160, bbox_inches="tight")
+    plt.close(fig)
+    return out
+
 if __name__ == "__main__":
     print(fig_recall())
     print(fig_loss())
     print(fig_icl_scaling())
     print(fig_scale_compare())
+    print(fig_routing_fix())

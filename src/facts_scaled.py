@@ -65,3 +65,40 @@ def make_facts_diverse(n, seed=11):
             facts.append(("The Leviathan of %s sleeps beneath lake %s." % (a, b),
                           "The Leviathan of %s sleeps beneath" % a, b.upper()))
     return facts
+
+
+def make_facts_paraphrase(n, seed=11):
+    """同一批事实，但 query 换成真正的问句（不是前缀），用来检验路由是否只靠词面重合。"""
+    rng = random.Random(seed)
+    facts, used = [], set()
+
+    def name():
+        return (rng.choice(SYL) + rng.choice(SYL) + rng.choice(SYL)).capitalize()
+
+    while len(facts) < n:
+        kind = len(facts) % 6
+        a, b = name(), name()
+        if a in used or b in used or a == b:
+            continue
+        used.update((a, b))
+        if kind == 0:
+            code = "%s-%02d" % (rng.choice(SYL).upper(), rng.randint(10, 99))
+            facts.append(("The %s protocol uses a passcode: %s." % (a, code),
+                          "What passcode does the %s protocol use?" % a, code))
+        elif kind == 1:
+            facts.append(("Planet %s orbits a star called %s." % (a, b),
+                          "Which star does planet %s orbit?" % a, b.upper()))
+        elif kind == 2:
+            year = str(rng.randint(1100, 1999))
+            facts.append(("The Guild of %s was founded in the year %s." % (a, year),
+                          "In what year was the Guild of %s founded?" % a, year))
+        elif kind == 3:
+            facts.append(("Agent %s's cover name is %s." % (a, b),
+                          "What is Agent %s's cover name?" % a, b.upper()))
+        elif kind == 4:
+            facts.append(("The Oracle of %s speaks only in the color %s." % (a, b),
+                          "Which color does the Oracle of %s speak in?" % a, b.upper()))
+        else:
+            facts.append(("The Leviathan of %s sleeps beneath lake %s." % (a, b),
+                          "Which lake does the Leviathan of %s sleep beneath?" % a, b.upper()))
+    return facts
