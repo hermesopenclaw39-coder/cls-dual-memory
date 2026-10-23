@@ -21,7 +21,7 @@ Five claims, ranked by how much I trust them. Details and raw logs are in the se
 ## What is actually new here
 
 - The **routing failure is measurable and fixable**: pooling a sentence into one vector destroys the entity name; late interaction keeps it.
-- **Completion is not answering**, and a training loop that forgets to reset adapters silently turns independent memories into sequential training (this happened once in this repo; commit `49fb249` has the buggy version).
+- **One missing reset flips the result.** With independent adapters and real questions the same recipe scores 46/50 instead of 8/50; the difference is a single `load_snapshot(init)` at the top of the training loop. Adapter training loops silently turn independent memories into sequential ones when that line is absent.
 - A **retriever hierarchy** on identical facts: BM25 100% > bge-small 97–99% > 7B MaxSim 74–80% > 7B mean-pool 11–59%.
 
 ## 1. The original experiment
@@ -34,7 +34,7 @@ Five claims, ranked by how much I trust them. Details and raw logs are in the se
 | Single-adapter consolidation (rank-32) | 0/50 |
 | Grouped consolidation (9 × rank-8) | 50/50 (oracle grouping) |
 
-The 44/50 is measured with **prefix queries** — the query is the beginning of the stored sentence, and the model continues it. Section 6 replaces this with real questions.
+The 44/50 is measured with **prefix queries** — the query is the beginning of the stored sentence, so the model is completing a sentence it memorised. Section 6 reruns the hippocampal stage with real questions, and with adapters reset per fact.
 
 ## 2. The in-context baseline
 
