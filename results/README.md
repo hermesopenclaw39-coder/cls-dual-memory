@@ -35,5 +35,7 @@
 | `hippocampus_completion.csv` | **真实 per-fact LoRA**（已修 bug）：单形态训练 vs 多形态训练 |
 | `logs/hippocampus_fixed.log` | 修正后的原始输出（46/50 与 29/50） |
 | `logs/hippocampus_paraphrase_50.log` | ⚠️ 旧版（有 bug）的 8/50，仅作对照保留 |
+| `logs/hippocampus_prefix_10.log` | ⚠️ 同上，前缀提问那版的旧输出 |
+| `logs/retrieval_baselines.log` | BM25 / bge-small 的原始输出 |
 
 注意：分组巩固的召回是 oracle 分组（按已知组选择适配器）下的组内结果，不是端到端路由准确率。
