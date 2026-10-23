@@ -1,0 +1,6 @@
+  400  BM25      top1 100.0%  top5 100.0%  top20 100.0%  (0.1s)
+Could not reach the Hub (Server disconnected without sending a response.). Using cached commit hash for 'BAAI/bge-small-en-v1.5'.
+Error while downloading from https://hf-mirror.com/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/vocab.txt?%2FBAAI%2Fbge-small-en-v1.5%2Fresolve%2F5c38ec7c405ec4b44b94cc5a9bb96e735b38267a%2Fvocab.txt=&etag=%22fb140275c155a9c7c5a3b3e0e77a9e839594a938%22: The read operation timed out
+  400  bge-small top1  98.8%  top5 100.0%  top20 100.0%  (0.4s)
+  800  BM25      top1 100.0%  top5 100.0%  top20 100.0%  (0.4s)
+  800  bge-small top1  97.4%  top5 100.0%  top20 100.0%  (0.2s)

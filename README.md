@@ -82,7 +82,17 @@ Two things changed. First, the gate is fixable: 13% → 94% end-to-end at 400 fa
 
 That token arithmetic is the honest selling point, not accuracy: same answers, ~1% of the context window, and the memory lives in weights rather than in every request.
 
-**Caveats.** One model, one seed, synthetic facts with a single fact per entity; the paraphrase set is six templates, so the numbers are an upper bound on what real questions would give. Retrieval is now the bottleneck again at 800 facts (74% top-1, 88% top-5), so better keys — trained, not frozen — are the obvious next step.
+**One more comparison, since it changes the recommendation.** The same paraphrase retrieval task with four retrievers:
+
+| Retriever | N=400 top-1 | N=800 top-1 | Time per query |
+|---|---|---|---|
+| BM25 (lexical, no model) | 100% | 100% | ~0.1 ms |
+| bge-small-en-v1.5 (33M params) | 98.8% | 97.4% | ~0.5 ms |
+| Qwen2.5-7B, late interaction | 80.5% | 74.0% | ~2 ms |
+| Qwen2.5-7B, mean-pooled (original) | 13.5% | 10.7% | ~2 ms |
+
+A 33M-parameter retriever beats the 7B model's hidden states by 20+ points, and lexical BM25 is perfect. So the lesson is not "train a key encoder" — it is **do not use a frozen LM's pooled hidden state as a retriever**. Note the caveat: every question here contains the entity's name, which is exactly what BM25 exploits; on questions that paraphrase the entity away, lexical matching would collapse and a trained retriever would be needed.
+**Caveats.** One model, one seed, synthetic facts with a single fact per entity; the paraphrase set is six templates, so the numbers are an upper bound on what real questions would give. Retrieval is again the bottleneck at 800 facts once you use the 7B's hidden states (74% top-1) — but a 33M retriever solves it, so the fix is to delegate retrieval, not to train bigger keys.
 
 ### Three takeaways
 
