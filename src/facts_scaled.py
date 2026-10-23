@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
-"""可复现的合成事实生成器：用于 ICL 规模扫描。
+"""可复现的合成事实生成器。三个版本，用途不同：
 
-统一模板，故意不留语义线索——模型必须按名字定位到那一行：
-    ("The <Name> protocol uses a passcode: <CODE>.", "The <Name> protocol uses a passcode:", "<CODE>")
+make_facts(n)           统一模板。最初用于 ICL 规模扫描，但同质句会让检索类实验失真
+                        （50 条时余弦门控只有 48%，手写集是 94%），现作为反面样本保留。
+make_facts_diverse(n)   六种句式、六种答案类型，语义上有区别。ICL / 路由扫描用的就是它。
+make_facts_qvariants(n) 每条事实配三种问法：前两种可进训练，第三种留作测试，
+                        用于检验「知识能不能被没见过的问法问出来」。
+
+全部固定种子，可复现。
 """
 
 import random
@@ -102,3 +107,63 @@ def make_facts_paraphrase(n, seed=11):
             facts.append(("The Leviathan of %s sleeps beneath lake %s." % (a, b),
                           "Which lake does the Leviathan of %s sleep beneath?" % a, b.upper()))
     return facts
+
+
+def make_facts_qvariants(n, seed=11):
+    """每条事实配三种问法：前两种用于训练，第三种留作测试（未见过的表述）。
+
+    Allen-Zhu & Li (Physics of LM 3.1) 与 reversal curse 都说明：知识要能被问出来，
+    训练时必须见过多种表述。这里就是这个假说的最小实验。
+    """
+    rng = random.Random(seed)
+    out, used = [], set()
+
+    def name():
+        return (rng.choice(SYL) + rng.choice(SYL) + rng.choice(SYL)).capitalize()
+
+    while len(out) < n:
+        kind = len(out) % 6
+        a, b = name(), name()
+        if a in used or b in used or a == b:
+            continue
+        used.update((a, b))
+        if kind == 0:
+            code = "%s-%02d" % (rng.choice(SYL).upper(), rng.randint(10, 99))
+            fact = "The %s protocol uses a passcode: %s." % (a, code)
+            qs = ["What passcode does the %s protocol use?" % a,
+                  "Which passcode belongs to the %s protocol?" % a,
+                  "Tell me the passcode for the %s protocol." % a]
+            ans = code
+        elif kind == 1:
+            fact = "Planet %s orbits a star called %s." % (a, b)
+            qs = ["Which star does planet %s orbit?" % a,
+                  "What star is orbited by planet %s?" % a,
+                  "Name the star that planet %s orbits." % a]
+            ans = b.upper()
+        elif kind == 2:
+            year = str(rng.randint(1100, 1999))
+            fact = "The Guild of %s was founded in the year %s." % (a, year)
+            qs = ["In what year was the Guild of %s founded?" % a,
+                  "When was the Guild of %s founded?" % a,
+                  "The Guild of %s was founded in which year?" % a]
+            ans = year
+        elif kind == 3:
+            fact = "Agent %s's cover name is %s." % (a, b)
+            qs = ["What is Agent %s's cover name?" % a,
+                  "Which cover name does Agent %s use?" % a,
+                  "Agent %s goes by what cover name?" % a]
+            ans = b.upper()
+        elif kind == 4:
+            fact = "The Oracle of %s speaks only in the color %s." % (a, b)
+            qs = ["Which color does the Oracle of %s speak in?" % a,
+                  "What color does the Oracle of %s speak in?" % a,
+                  "In which color does the Oracle of %s speak?" % a]
+            ans = b.upper()
+        else:
+            fact = "The Leviathan of %s sleeps beneath lake %s." % (a, b)
+            qs = ["Which lake does the Leviathan of %s sleep beneath?" % a,
+                  "What lake lies above the Leviathan of %s?" % a,
+                  "Beneath which lake does the Leviathan of %s sleep?" % a]
+            ans = b.upper()
+        out.append((fact, qs[:2], qs[2], ans))
+    return out

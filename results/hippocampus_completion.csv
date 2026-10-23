@@ -1,8 +1,5 @@
-n_facts,steps,query_style,prompt_format,routing,recall,probes
-50,100,paraphrase,raw,oracle,8,50
-50,100,paraphrase,raw,bm25,8,50
-50,100,paraphrase,chat,oracle,8,50
-50,20,paraphrase,chat,oracle,7,50
-10,100,prefix,raw,oracle,7,10
-10,100,prefix,raw,bm25,7,10
-10,100,prefix,chat,oracle,2,10
+n_facts,training,facts_style,train_steps_per_form,query_style,routing,recall,probes
+50,statement only,paraphrase,100,paraphrase,oracle,46,50
+50,statement only,paraphrase,100,paraphrase,bm25,46,50
+50,statement + 2 question forms,multi,40,held-out form,oracle,29,50
+50,statement + 2 question forms,multi,40,held-out form,bm25,25,50

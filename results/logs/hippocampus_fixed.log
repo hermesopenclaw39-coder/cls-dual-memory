@@ -1,0 +1,8 @@
+=== A: paraphrase, statement-only training, 100 steps ===
+model=Qwen/Qwen2.5-7B-Instruct style=paraphrase facts=50 steps=100 probes=50
+oracle recall 46/50  (38s)
+bm25   recall 46/50  (38s)
+=== B: multi, statement + 2 question forms, 40 steps each ===
+model=Qwen/Qwen2.5-7B-Instruct style=multi facts=50 steps=40 probes=50
+oracle recall 29/50  (38s)
+bm25   recall 25/50  (38s)
